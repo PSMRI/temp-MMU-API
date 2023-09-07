@@ -21,9 +21,6 @@
 */
 package com.iemr.mmu.service.dataSyncLayerCentral;
 
-import java.sql.Timestamp;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,12 +32,6 @@ import org.springframework.stereotype.Service;
 import com.iemr.mmu.data.syncActivity_syncLayer.SyncUploadDataDigester;
 import com.iemr.mmu.utils.mapper.InputMapper;
 
-/***
- * 
- * @author NE298657
- *
- */
-
 @Service
 public class GetDataFromVanAndSyncToDBImpl implements GetDataFromVanAndSyncToDB {
 
@@ -50,7 +41,6 @@ public class GetDataFromVanAndSyncToDBImpl implements GetDataFromVanAndSyncToDB 
 
 	public String syncDataToServer(String requestOBJ, String Authorization) throws Exception {
 
-		// feed sync request
 		SyncUploadDataDigester syncUploadDataDigester = InputMapper.gson().fromJson(requestOBJ,
 				SyncUploadDataDigester.class);
 
@@ -65,7 +55,6 @@ public class GetDataFromVanAndSyncToDBImpl implements GetDataFromVanAndSyncToDB 
 
 			Object[] objArr;
 
-			// sync data 'list of object array'
 			List<Object[]> syncDataListInsert = new ArrayList<>();
 			List<Object[]> syncDataListUpdate = new ArrayList<>();
 
@@ -87,51 +76,50 @@ public class GetDataFromVanAndSyncToDBImpl implements GetDataFromVanAndSyncToDB 
 				map.replace("SyncedBy", syncUploadDataDigester.getSyncedBy());
 
 				map.replace("date_format(SyncedDate,'%Y-%m-%d %H:%i:%s')", String.valueOf(LocalDateTime.now()));
-			
+
 				if (syncUploadDataDigester.getFacilityID() != null) {
 					Double changeDoubleToIntegerID = 0.0;
 					switch (syncTableName) {
-						case "t_indent": {
-							if (map.containsKey("FromFacilityID") && map.get("FromFacilityID") != null) {
-								changeDoubleToIntegerID = (Double) map.get("FromFacilityID");
-								if (changeDoubleToIntegerID.intValue() == syncUploadDataDigester.getFacilityID())
-									map.replace("Processed", "P");
-							}
-
-						}
-						case "t_indentorder": {
-							if (map.containsKey("FromFacilityID") && map.get("FromFacilityID") != null)
-								changeDoubleToIntegerID = (Double) map.get("FromFacilityID");
+					case "t_indent": {
+						if (map.containsKey("FromFacilityID") && map.get("FromFacilityID") != null) {
+							changeDoubleToIntegerID = (Double) map.get("FromFacilityID");
 							if (changeDoubleToIntegerID.intValue() == syncUploadDataDigester.getFacilityID())
 								map.replace("Processed", "P");
 						}
-						case "t_indentissue": {
-							if (map.containsKey("ToFacilityID") && map.get("ToFacilityID") != null) {
-								changeDoubleToIntegerID = (Double) map.get("ToFacilityID");
-								if (changeDoubleToIntegerID.intValue() == syncUploadDataDigester.getFacilityID())
-									map.replace("Processed", "P");
-							}
 
+					}
+					case "t_indentorder": {
+						if (map.containsKey("FromFacilityID") && map.get("FromFacilityID") != null)
+							changeDoubleToIntegerID = (Double) map.get("FromFacilityID");
+						if (changeDoubleToIntegerID.intValue() == syncUploadDataDigester.getFacilityID())
+							map.replace("Processed", "P");
+					}
+					case "t_indentissue": {
+						if (map.containsKey("ToFacilityID") && map.get("ToFacilityID") != null) {
+							changeDoubleToIntegerID = (Double) map.get("ToFacilityID");
+							if (changeDoubleToIntegerID.intValue() == syncUploadDataDigester.getFacilityID())
+								map.replace("Processed", "P");
 						}
-						// here a change in rule, will compare with toFacilityID
-						case "t_stocktransfer": {
-							if (map.containsKey("TransferToFacilityID") && map.get("TransferToFacilityID") != null) {
-								changeDoubleToIntegerID = (Double) map.get("TransferToFacilityID");
-								if (changeDoubleToIntegerID.intValue() == syncUploadDataDigester.getFacilityID())
-									map.replace("Processed", "P");
-							}
 
+					}
+					case "t_stocktransfer": {
+						if (map.containsKey("TransferToFacilityID") && map.get("TransferToFacilityID") != null) {
+							changeDoubleToIntegerID = (Double) map.get("TransferToFacilityID");
+							if (changeDoubleToIntegerID.intValue() == syncUploadDataDigester.getFacilityID())
+								map.replace("Processed", "P");
 						}
-						case "t_itemstockentry": {
 
-							if (map.containsKey("FacilityID") && map.get("FacilityID") != null) {
-								changeDoubleToIntegerID = (Double) map.get("FacilityID");
-								if (changeDoubleToIntegerID.intValue() == syncUploadDataDigester.getFacilityID())
-									map.replace("Processed", "P");
-							}
+					}
+					case "t_itemstockentry": {
 
+						if (map.containsKey("FacilityID") && map.get("FacilityID") != null) {
+							changeDoubleToIntegerID = (Double) map.get("FacilityID");
+							if (changeDoubleToIntegerID.intValue() == syncUploadDataDigester.getFacilityID())
+								map.replace("Processed", "P");
 						}
-						default:
+
+					}
+					default:
 
 					}
 
@@ -168,7 +156,6 @@ public class GetDataFromVanAndSyncToDBImpl implements GetDataFromVanAndSyncToDB 
 				if (recordCheck == 0) {
 					syncDataListInsert.add(objArr);
 				} else {
-				
 
 					objArr[pointer] = String.valueOf(vanSerialNo);
 
@@ -192,35 +179,29 @@ public class GetDataFromVanAndSyncToDBImpl implements GetDataFromVanAndSyncToDB 
 
 					syncDataListUpdate.add(objArr);
 				}
-				
+
 			}
 
 			int[] i = null;
 			if (syncDataListInsert != null && syncDataListInsert.size() > 0) {
-				// schema name hard coded(Insert query builder)
 				String queryInsert = getQueryToInsertDataToServerDB(syncUploadDataDigester.getSchemaName(),
-						syncUploadDataDigester.getTableName(),syncUploadDataDigester.getServerColumns());
+						syncUploadDataDigester.getTableName(), syncUploadDataDigester.getServerColumns());
 
-				// call repository to execute the query with given data list(Insert)
-				i = dataSyncRepositoryCentral.syncDataToCentralDB(
-						syncUploadDataDigester.getSchemaName(),
+				i = dataSyncRepositoryCentral.syncDataToCentralDB(syncUploadDataDigester.getSchemaName(),
 						syncUploadDataDigester.getTableName(), syncUploadDataDigester.getServerColumns(), queryInsert,
 						syncDataListInsert);
 			}
 
 			int[] j = null;
 			if (syncDataListUpdate != null && syncDataListUpdate.size() > 0) {
-				// schema name hard coded(Update query builder)
-				String queryUpdate = getQueryToUpdateDataToServerDB(syncUploadDataDigester.getSchemaName(), syncUploadDataDigester.getServerColumns(),
-						syncUploadDataDigester.getTableName());
+				String queryUpdate = getQueryToUpdateDataToServerDB(syncUploadDataDigester.getSchemaName(),
+						syncUploadDataDigester.getServerColumns(), syncUploadDataDigester.getTableName());
 
-				// call repository to execute the query with given data list(Update)
 				j = dataSyncRepositoryCentral.syncDataToCentralDB(syncUploadDataDigester.getSchemaName(),
 						syncUploadDataDigester.getTableName(), ServerColumnsNotRequired, queryUpdate,
 						syncDataListUpdate);
 			}
 
-			// validating if data sync successfully
 			if ((i != null && syncDataListInsert.size() != i.length)
 					|| (j != null && syncDataListUpdate.size() != j.length))
 				return null;
@@ -237,7 +218,6 @@ public class GetDataFromVanAndSyncToDBImpl implements GetDataFromVanAndSyncToDB 
 		List<Map<String, Object>> dataToBesync = syncUploadDataDigester.getSyncData();
 
 		Object[] objArr;
-		// sync data 'list of object array'
 		List<Object[]> syncData = new ArrayList<>();
 
 		String query = getqueryFor_M_BeneficiaryRegIdMapping(syncUploadDataDigester.getSchemaName(),
@@ -274,7 +254,7 @@ public class GetDataFromVanAndSyncToDBImpl implements GetDataFromVanAndSyncToDB 
 	private String getqueryFor_M_BeneficiaryRegIdMapping(String schemaName, String tableName) {
 
 		StringBuilder queryBuilder = new StringBuilder(" UPDATE  ");
-		queryBuilder.append(schemaName+"."+tableName);
+		queryBuilder.append(schemaName + "." + tableName);
 		queryBuilder.append(" SET ");
 		queryBuilder.append("Provisioned = true, SyncedDate = now(), syncedBy = ?");
 		queryBuilder.append(" WHERE ");
@@ -293,36 +273,30 @@ public class GetDataFromVanAndSyncToDBImpl implements GetDataFromVanAndSyncToDB 
 			columnsArr = serverColumns.split(",");
 
 		StringBuilder preparedStatementSetter = new StringBuilder();
-		/// StringBuilder updateStatement = new StringBuilder();
 
 		if (columnsArr != null && columnsArr.length > 0) {
 			int index = 0;
 			for (String column : columnsArr) {
 				if (index == columnsArr.length - 1) {
 					preparedStatementSetter.append(" ? ");
-					
+
 				} else {
 					preparedStatementSetter.append(" ?, ");
-					
+
 				}
 				index++;
 			}
 		}
-		/*
-		 * String query = "INSERT INTO " + schemaName + "." + tableName + "( " +
-		 * serverColumns + ") VALUES ( " + preparedStatementSetter + " ) ";
-		 */
 
 		StringBuilder queryBuilder = new StringBuilder("INSERT INTO ");
 		queryBuilder.append(schemaName + "." + tableName);
 		queryBuilder.append("(");
-//		queryBuilder.append("?");
 		queryBuilder.append(serverColumns);
 		queryBuilder.append(") VALUES (");
 		queryBuilder.append(preparedStatementSetter);
 		queryBuilder.append(") ");
 		String query = queryBuilder.toString();
-		 
+
 		return query;
 	}
 
@@ -355,7 +329,7 @@ public class GetDataFromVanAndSyncToDBImpl implements GetDataFromVanAndSyncToDB 
 				|| tableName.equalsIgnoreCase("t_itemstockentry") || tableName.equalsIgnoreCase("t_itemstockexit")) {
 
 			StringBuilder queryBuilder = new StringBuilder(" UPDATE  ");
-			queryBuilder.append(schemaName+"."+tableName);
+			queryBuilder.append(schemaName + "." + tableName);
 			queryBuilder.append(" SET ");
 			queryBuilder.append(preparedStatementSetter);
 			queryBuilder.append(" WHERE ");
@@ -366,7 +340,7 @@ public class GetDataFromVanAndSyncToDBImpl implements GetDataFromVanAndSyncToDB 
 			return query;
 		} else {
 			StringBuilder queryBuilder = new StringBuilder(" UPDATE  ");
-			queryBuilder.append(schemaName+"."+tableName);
+			queryBuilder.append(schemaName + "." + tableName);
 			queryBuilder.append(" SET ");
 			queryBuilder.append(preparedStatementSetter);
 			queryBuilder.append(" WHERE ");

@@ -22,8 +22,6 @@
 package com.iemr.mmu.service.ncdCare;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -81,10 +79,6 @@ public class NCDCareDoctorServiceImpl implements NCDCareDoctorService {
 		ArrayList<Object[]> resList = ncdCareDiagnosisRepo.getNCDCareDiagnosisDetails(beneficiaryRegID, visitCode);
 		NCDCareDiagnosis ncdCareDiagnosisDetails = NCDCareDiagnosis.getNCDCareDiagnosisDetails(resList);
 
-		// 07-09-2021 parsing the || seperated ncd_condition to array of string, if
-		// condition
-		// 07-09-2021
-
 		if (ncdCareDiagnosisDetails != null && ncdCareDiagnosisDetails.getNcdScreeningCondition() != null
 				&& ncdCareDiagnosisDetails.getNcdScreeningCondition().length() > 0) {
 
@@ -95,7 +89,7 @@ public class NCDCareDoctorServiceImpl implements NCDCareDoctorService {
 
 		if (externalInvestigation != null)
 			ncdCareDiagnosisDetails.setExternalInvestigation(externalInvestigation);
-		
+
 		ArrayList<PrescriptionDetail> prescriptionDetailRS = prescriptionDetailRepo
 				.findByBeneficiaryRegIDAndVisitCodeOrderByPrescriptionIDDesc(beneficiaryRegID, visitCode);
 
@@ -105,13 +99,8 @@ public class NCDCareDoctorServiceImpl implements NCDCareDoctorService {
 				String[] conceptIDArr = obj.getDiagnosisProvided_SCTCode().split(Pattern.quote("  ||  "));
 				String[] termArr = obj.getDiagnosisProvided().split(Pattern.quote("  ||  "));
 
-				// StringBuilder pd = new StringBuilder();
 				int pointer = 0;
 				for (String s : termArr) {
-					// if (termArr.length == (pointer + 1))
-					// pd.append(s);
-					// else
-					// pd.append(s).append(" || ");
 					sctOBJ = new SCTDescription();
 					sctOBJ.setConceptID(conceptIDArr[pointer]);
 					sctOBJ.setTerm(s);
@@ -124,16 +113,12 @@ public class NCDCareDoctorServiceImpl implements NCDCareDoctorService {
 				ncdCareDiagnosisDetails.setDiagnosisProvided(obj.getDiagnosisProvided());
 				ncdCareDiagnosisDetails.setDiagnosisProvided_SCTCode(obj.getDiagnosisProvided_SCTCode());
 				ncdCareDiagnosisDetails.setProvisionalDiagnosisList(sctOBJList);
-				// obj.setDiagnosisProvided(pd.toString());
 			}
-			
+
 		} else {
 			obj = new PrescriptionDetail();
 		}
-		
-//		Map<String, Object> response = new HashMap<>();
-//		response.put("diagnosis", ncdCareDiagnosisDetails);
-	
+
 		return new Gson().toJson(ncdCareDiagnosisDetails);
 	}
 
@@ -156,9 +141,7 @@ public class NCDCareDoctorServiceImpl implements NCDCareDoctorService {
 		} else
 			ncdCareDiagnosis.setNcdScreeningCondition(null);
 
-		// ncdCareDiagnosis.setProcessed(processed);
 		if (processed != null) {
-			// 07-09-2021, moved below line from outside if block to inside for null check
 			ncdCareDiagnosis.setProcessed(processed);
 			res = ncdCareDiagnosisRepo.updateNCDCareDiagnosis(ncdCareDiagnosis.getNcdCareCondition(),
 					ncdCareDiagnosis.getNcdComplication(), ncdCareDiagnosis.getNcdCareType(),

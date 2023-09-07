@@ -35,27 +35,16 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.iemr.mmu.data.benFlowStatus.BeneficiaryFlowStatus;
 
-/***
- * 
- * @author NE298657
- *
- */
 @Repository
 @RestResource(exported = false)
 public interface BeneficiaryFlowStatusRepo extends CrudRepository<BeneficiaryFlowStatus, Long> {
-//	@Query("SELECT  t from BeneficiaryFlowStatus t WHERE (t.nurseFlag = 1 OR t.nurseFlag = 100) AND t.deleted = false "
-//			+ " AND Date(t.visitDate)  = curdate() AND t.providerServiceMapId = :providerServiceMapId "
-//			+ " AND t.vanID = :vanID ORDER BY t.visitDate DESC ")
-//	public ArrayList<BeneficiaryFlowStatus> getNurseWorklistNew(
-//			@Param("providerServiceMapId") Integer providerServiceMapId, @Param("vanID") Integer vanID);
-	
+
 	@Query("SELECT  t from BeneficiaryFlowStatus t WHERE (t.nurseFlag = 1 OR t.nurseFlag = 100) AND t.deleted = false "
 			+ " AND Date(t.visitDate)  >= Date(:fromDate) AND t.providerServiceMapId = :providerServiceMapId "
 			+ " AND t.vanID = :vanID ORDER BY t.visitDate DESC ")
 	public ArrayList<BeneficiaryFlowStatus> getNurseWorklistNew(
-			@Param("providerServiceMapId") Integer providerServiceMapId, @Param("vanID") Integer vanID,@Param("fromDate") Timestamp fromDate);
-	
-	
+			@Param("providerServiceMapId") Integer providerServiceMapId, @Param("vanID") Integer vanID,
+			@Param("fromDate") Timestamp fromDate);
 
 	@Transactional
 	@Modifying
@@ -134,18 +123,12 @@ public interface BeneficiaryFlowStatusRepo extends CrudRepository<BeneficiaryFlo
 			@Param("providerServiceMapId") Integer providerServiceMapId,
 			@Param("tCSpecialistUserID") Integer tCSpecialistUserID);
 
-//	@Query("SELECT  t.benFlowID from BeneficiaryFlowStatus t WHERE t.beneficiaryRegID = :benRegID "
-//			+ "AND t.providerServiceMapId = :provoderSerMapID AND t.vanID = :vanID AND "
-//			+ " (t.nurseFlag = 1 OR t.nurseFlag = 100) AND Date(t.visitDate)  = curdate() AND t.deleted = false")
-//	public ArrayList<Long> checkBenAlreadyInNurseWorkList(@Param("benRegID") Long benRegID,
-//			@Param("provoderSerMapID") Integer provoderSerMapID, @Param("vanID") Integer vanID);
-	
 	@Query("SELECT  t.benFlowID from BeneficiaryFlowStatus t WHERE t.beneficiaryRegID = :benRegID "
 			+ "AND t.providerServiceMapId = :provoderSerMapID AND t.vanID = :vanID AND "
 			+ " (t.nurseFlag = 1 OR t.nurseFlag = 100) AND Date(t.visitDate) >= Date(:fromDate) AND t.deleted = false")
 	public ArrayList<Long> checkBenAlreadyInNurseWorkList(@Param("benRegID") Long benRegID,
-			@Param("provoderSerMapID") Integer provoderSerMapID, @Param("vanID") Integer vanID,@Param("fromDate") Timestamp fromDate);
-
+			@Param("provoderSerMapID") Integer provoderSerMapID, @Param("vanID") Integer vanID,
+			@Param("fromDate") Timestamp fromDate);
 
 	@Query("SELECT t from BeneficiaryFlowStatus t WHERE (t.nurseFlag = 2 OR t.doctorFlag = 2 OR t.specialist_flag = 2) "
 			+ " AND t.benVisitDate >= Date(:fromDate) AND t.vanID = :vanID AND t.deleted = false "
@@ -165,6 +148,7 @@ public interface BeneficiaryFlowStatusRepo extends CrudRepository<BeneficiaryFlo
 			@Param("pharmaFlag") Short pharmaFlag, @Param("oncologistFlag") Short oncologistFlag,
 			@Param("tcSpecialistFlag") Short tcSpecialistFlag, @Param("tcSpecialistUserID") int tcSpecialistUserID,
 			@Param("tcDate") Timestamp tcDate);
+
 	@Transactional
 	@Modifying
 	@Query("UPDATE BeneficiaryFlowStatus t set t.doctorFlag = :docFlag , t.pharmacist_flag = :pharmaFlag, "
@@ -174,8 +158,7 @@ public interface BeneficiaryFlowStatusRepo extends CrudRepository<BeneficiaryFlo
 	public int updateBenFlowStatusAfterDoctorActivityWDF(@Param("benFlowID") Long benFlowID,
 			@Param("benRegID") Long benRegID, @Param("benID") Long benID, @Param("docFlag") Short docFlag,
 			@Param("pharmaFlag") Short pharmaFlag, @Param("oncologistFlag") Short oncologistFlag,
-			 @Param("tcSpecialistUserID") int tcSpecialistUserID,
-			@Param("tcDate") Timestamp tcDate);
+			@Param("tcSpecialistUserID") int tcSpecialistUserID, @Param("tcDate") Timestamp tcDate);
 
 	@Transactional
 	@Modifying
@@ -313,10 +296,6 @@ public interface BeneficiaryFlowStatusRepo extends CrudRepository<BeneficiaryFlo
 	public ArrayList<BeneficiaryFlowStatus> getNurseWorklistTMreferred(
 			@Param("providerServiceMapId") Integer providerServiceMapId, @Param("vanID") Integer vanID,
 			@Param("fromDate") Timestamp fromDate);
-	// Query to check TM visit is done for referred case....Shubham Shekhar
-//	@Query(value="SELECT count(ben_flow_id) FROM db_iemr.i_ben_flow_outreach i where i.referred_visitcode = :visitCode and specialist_flag=9"
-//			,nativeQuery=true)
-//	public Integer isTMvisitDone(@Param("visitCode") Long visitCode);
 
 	@Query("SELECT t.isCaseSheetdownloaded from BeneficiaryFlowStatus t where t.visitCode = :mmuVisitCode")
 	public Boolean checkIsCaseSheetDownloaded(@Param("mmuVisitCode") Long mmuVisitCode);
@@ -336,6 +315,5 @@ public interface BeneficiaryFlowStatusRepo extends CrudRepository<BeneficiaryFlo
 	@Query(nativeQuery = true, value = " SELECT ben_dob FROM i_ben_flow_outreach WHERE beneficiary_reg_id = :benRegID "
 			+ " AND ben_gender_val = 2 AND ben_dob is not null order by ben_flow_id DESC LIMIT 1 ")
 	public Timestamp getBenAgeVal(@Param("benRegID") Long benRegID);
-	
-	
+
 }
