@@ -40,7 +40,7 @@ public class GetDataFromVanAndSyncToDBImpl implements GetDataFromVanAndSyncToDB 
 	private DataSyncRepositoryCentral dataSyncRepositoryCentral;
 
 	public String syncDataToServer(String requestOBJ, String Authorization) throws Exception {
-
+		// feed sync request
 		SyncUploadDataDigester syncUploadDataDigester = InputMapper.gson().fromJson(requestOBJ,
 				SyncUploadDataDigester.class);
 
@@ -54,7 +54,7 @@ public class GetDataFromVanAndSyncToDBImpl implements GetDataFromVanAndSyncToDB 
 			List<Map<String, Object>> dataToBesync = syncUploadDataDigester.getSyncData();
 
 			Object[] objArr;
-
+			// sync data 'list of object array'
 			List<Object[]> syncDataListInsert = new ArrayList<>();
 			List<Object[]> syncDataListUpdate = new ArrayList<>();
 
@@ -102,6 +102,7 @@ public class GetDataFromVanAndSyncToDBImpl implements GetDataFromVanAndSyncToDB 
 						}
 
 					}
+					// here a change in rule, will compare with toFacilityID
 					case "t_stocktransfer": {
 						if (map.containsKey("TransferToFacilityID") && map.get("TransferToFacilityID") != null) {
 							changeDoubleToIntegerID = (Double) map.get("TransferToFacilityID");
@@ -184,9 +185,10 @@ public class GetDataFromVanAndSyncToDBImpl implements GetDataFromVanAndSyncToDB 
 
 			int[] i = null;
 			if (syncDataListInsert != null && syncDataListInsert.size() > 0) {
+				// schema name hard coded(Insert query builder)
 				String queryInsert = getQueryToInsertDataToServerDB(syncUploadDataDigester.getSchemaName(),
 						syncUploadDataDigester.getTableName(), syncUploadDataDigester.getServerColumns());
-
+				// call repository to execute the query with given data list(Insert)
 				i = dataSyncRepositoryCentral.syncDataToCentralDB(syncUploadDataDigester.getSchemaName(),
 						syncUploadDataDigester.getTableName(), syncUploadDataDigester.getServerColumns(), queryInsert,
 						syncDataListInsert);
@@ -194,14 +196,15 @@ public class GetDataFromVanAndSyncToDBImpl implements GetDataFromVanAndSyncToDB 
 
 			int[] j = null;
 			if (syncDataListUpdate != null && syncDataListUpdate.size() > 0) {
+				// schema name hard coded(Update query builder)
 				String queryUpdate = getQueryToUpdateDataToServerDB(syncUploadDataDigester.getSchemaName(),
 						syncUploadDataDigester.getServerColumns(), syncUploadDataDigester.getTableName());
-
+				// call repository to execute the query with given data list(Update)
 				j = dataSyncRepositoryCentral.syncDataToCentralDB(syncUploadDataDigester.getSchemaName(),
 						syncUploadDataDigester.getTableName(), ServerColumnsNotRequired, queryUpdate,
 						syncDataListUpdate);
 			}
-
+			// validating if data sync successfully
 			if ((i != null && syncDataListInsert.size() != i.length)
 					|| (j != null && syncDataListUpdate.size() != j.length))
 				return null;
@@ -218,6 +221,7 @@ public class GetDataFromVanAndSyncToDBImpl implements GetDataFromVanAndSyncToDB 
 		List<Map<String, Object>> dataToBesync = syncUploadDataDigester.getSyncData();
 
 		Object[] objArr;
+		// sync data 'list of object array'
 		List<Object[]> syncData = new ArrayList<>();
 
 		String query = getqueryFor_M_BeneficiaryRegIdMapping(syncUploadDataDigester.getSchemaName(),

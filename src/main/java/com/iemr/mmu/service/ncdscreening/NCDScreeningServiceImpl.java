@@ -141,12 +141,14 @@ public class NCDScreeningServiceImpl implements NCDScreeningService {
 	public Long saveNCDScreeningNurseData(JsonObject requestOBJ, String Authorization) throws Exception {
 		Long saveSuccessFlag = null;
 		TeleconsultationRequestOBJ tcRequestOBJ = null;
+		// check if visit details data is not null
 		if (requestOBJ != null && requestOBJ.has("isTMCDone") && !requestOBJ.get("isTMCDone").isJsonNull()) {
 			saveSuccessFlag = saveNCDNurseTMReferred(requestOBJ, Authorization);
 		} else {
 			if (requestOBJ != null && requestOBJ.has("visitDetails") && !requestOBJ.get("visitDetails").isJsonNull()) {
 				CommonUtilityClass nurseUtilityClass = InputMapper.gson().fromJson(requestOBJ,
 						CommonUtilityClass.class);
+				// Call method to save visit details data
 				Map<String, Long> visitIdAndCodeMap = saveBenVisitDetails(requestOBJ.getAsJsonObject("visitDetails"),
 						nurseUtilityClass);
 
@@ -163,7 +165,7 @@ public class NCDScreeningServiceImpl implements NCDScreeningService {
 				} else {
 					return new Long(0);
 				}
-
+				// check if visit details data saved successfully
 				Long historySaveSuccessFlag = null;
 				Long vitalSaveSuccessFlag = null;
 				Long idrsFlag = null;
@@ -180,9 +182,12 @@ public class NCDScreeningServiceImpl implements NCDScreeningService {
 					if (requestOBJ.has("historyDetails") && !requestOBJ.get("historyDetails").isJsonNull())
 						historySaveSuccessFlag = saveBenNCDCareHistoryDetails(
 								requestOBJ.getAsJsonObject("historyDetails"), benVisitID, benVisitCode);
+					// call method to save Vital data
 					vitalSaveSuccessFlag = saveBenNCDCareVitalDetails(requestOBJ.getAsJsonObject("vitalDetails"),
 							benVisitID, benVisitCode);
+					// call method to save IDRS data
 					idrsFlag = saveidrsDetails(requestOBJ.getAsJsonObject("idrsDetails"), benVisitID, benVisitCode);
+					// call method to save physical activity
 					physicalActivityFlag = savePhysicalActivityDetails(
 							requestOBJ.getAsJsonObject("historyDetails").getAsJsonObject("physicalActivityHistory"),
 							benVisitID, benVisitCode);
@@ -310,7 +315,7 @@ public class NCDScreeningServiceImpl implements NCDScreeningService {
 		} else {
 			pastHistorySuccessFlag = new Long(1);
 		}
-
+		// Save Comorbidity/concurrent Conditions
 		if (ncdCareHistoryOBJ != null && ncdCareHistoryOBJ.has("comorbidConditions")
 				&& !ncdCareHistoryOBJ.get("comorbidConditions").isJsonNull()) {
 			WrapperComorbidCondDetails wrapperComorbidCondDetails = InputMapper.gson()
@@ -323,7 +328,7 @@ public class NCDScreeningServiceImpl implements NCDScreeningService {
 		} else {
 			comrbidSuccessFlag = new Long(1);
 		}
-
+		// Save Medication History
 		if (ncdCareHistoryOBJ != null && ncdCareHistoryOBJ.has("medicationHistory")
 				&& !ncdCareHistoryOBJ.get("medicationHistory").isJsonNull()) {
 			WrapperMedicationHistory wrapperMedicationHistory = InputMapper.gson()
@@ -412,7 +417,7 @@ public class NCDScreeningServiceImpl implements NCDScreeningService {
 			personalHistorySuccessFlag = 1;
 			allergyHistorySuccessFlag = new Long(1);
 		}
-
+		// Save Other/Optional Vaccines History
 		if (ncdCareHistoryOBJ != null && ncdCareHistoryOBJ.has("childVaccineDetails")
 				&& !ncdCareHistoryOBJ.get("childVaccineDetails").isJsonNull()) {
 			WrapperChildOptionalVaccineDetail wrapperChildVaccineDetail = InputMapper.gson()
@@ -423,6 +428,7 @@ public class NCDScreeningServiceImpl implements NCDScreeningService {
 				childVaccineSuccessFlag = commonNurseServiceImpl
 						.saveChildOptionalVaccineDetail(wrapperChildVaccineDetail);
 			} else {
+				// Child Optional Vaccine Detail not provided.
 			}
 
 		} else {
@@ -439,7 +445,7 @@ public class NCDScreeningServiceImpl implements NCDScreeningService {
 				wrapperImmunizationHistory.setVisitCode(benVisitCode);
 				immunizationSuccessFlag = commonNurseServiceImpl.saveImmunizationHistory(wrapperImmunizationHistory);
 			} else {
-
+				// ImmunizationList Data not Available
 			}
 
 		} else {
@@ -732,6 +738,7 @@ public class NCDScreeningServiceImpl implements NCDScreeningService {
 		return visitIdAndCodeMap;
 	}
 
+	// method for updating ben flow status flag for nurse
 	private int updateBenStatusFlagAfterNurseSaveSuccess(JsonObject tmpOBJ, Long benVisitID, Long benFlowID,
 			Long benVisitCode, Integer vanID) {
 		short nurseFlag = (short) 9;
@@ -894,6 +901,7 @@ public class NCDScreeningServiceImpl implements NCDScreeningService {
 			res.put("anthropometryDetails", anthropometryDetails);
 			res.put("vitalDetails", vitalDetails);
 		} else {
+			// Failed to Fetch Beneficiary NCD Screening Details
 		}
 		return res.toString();
 	}
@@ -1131,19 +1139,19 @@ public class NCDScreeningServiceImpl implements NCDScreeningService {
 					&& requestOBJ.get("tcRequest") != null) {
 				tcRequestOBJ = InputMapper.gson().fromJson(requestOBJ.get("tcRequest"),
 						TeleconsultationRequestOBJ.class);
-
+				// create TC request
 				if (tcRequestOBJ != null && tcRequestOBJ.getUserID() != null && tcRequestOBJ.getUserID() > 0
 						&& tcRequestOBJ.getAllocationDate() != null) {
 
 					tcRequestOBJ.setAllocationDate(Utility.combineDateAndTimeToDateTime(
 							tcRequestOBJ.getAllocationDate().toString(), tcRequestOBJ.getFromTime()));
-
+					// tc request model
 					TCRequestModel tRequestModel = InputMapper.gson().fromJson(requestOBJ, TCRequestModel.class);
 					tRequestModel.setUserID(tcRequestOBJ.getUserID());
 					tRequestModel.setRequestDate(tcRequestOBJ.getAllocationDate());
 					tRequestModel
 							.setDuration_minute(Utility.timeDiff(tcRequestOBJ.getFromTime(), tcRequestOBJ.getToTime()));
-
+					// tc speciaist slot booking model
 					tcSpecialistSlotBookingRequestOBJ = new TcSpecialistSlotBookingRequestOBJ();
 					tcSpecialistSlotBookingRequestOBJ.setUserID(tRequestModel.getUserID());
 					tcSpecialistSlotBookingRequestOBJ.setDate(tRequestModel.getRequestDate());
@@ -1275,6 +1283,7 @@ public class NCDScreeningServiceImpl implements NCDScreeningService {
 				throw new RuntimeException();
 			}
 		} else {
+			// request OBJ is null.
 		}
 		return saveSuccessFlag;
 	}

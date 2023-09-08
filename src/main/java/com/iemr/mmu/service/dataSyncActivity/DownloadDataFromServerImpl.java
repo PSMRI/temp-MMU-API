@@ -114,6 +114,7 @@ public class DownloadDataFromServerImpl implements DownloadDataFromServer {
 
 							int i = downloadDataFromServer(table, ServerAuthorization);
 							if (i > 0) {
+								// successCounter++;
 							} else {
 								failedCounter++;
 								failedMasters.append(table.getTableName() + " | ");
@@ -159,6 +160,7 @@ public class DownloadDataFromServerImpl implements DownloadDataFromServer {
 		if (response != null && response.hasBody()) {
 			JSONObject obj = new JSONObject(response.getBody());
 			if (obj != null && obj.has("data") && obj.has("statusCode") && obj.getInt("statusCode") == 200) {
+				// Consume the response from API in master data digester
 				MasterDownloadDataDigester masterDownloadDataDigester = InputMapper.gson().fromJson(response.getBody(),
 						MasterDownloadDataDigester.class);
 				if (masterDownloadDataDigester != null) {
@@ -166,10 +168,13 @@ public class DownloadDataFromServerImpl implements DownloadDataFromServer {
 					if (i > 0)
 						successFlag = 1;
 				} else {
+					// error in parsing response data
 				}
 			} else {
+				// error in API call
 			}
 		} else {
+			// response is null or not valid
 		}
 		return successFlag;
 	}
@@ -177,7 +182,9 @@ public class DownloadDataFromServerImpl implements DownloadDataFromServer {
 	private int updateMastersWithLatestData(MasterDownloadDataDigester masterDownloadDataDigester,
 			SyncDownloadMaster syncDownloadMaster) {
 		int successFlag = 0;
+		// get master data in required format
 		List<Object[]> masterDataList = getMasterDataInFormatToInsertToDB(masterDownloadDataDigester);
+		// get query to insert/update data in local db
 		String query = getQueryToInsertUpdateMasterInLocalDB(syncDownloadMaster);
 
 		if (masterDataList != null && query != null) {

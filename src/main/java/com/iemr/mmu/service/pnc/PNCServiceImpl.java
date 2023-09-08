@@ -148,6 +148,7 @@ public class PNCServiceImpl implements PNCService {
 			Integer i = null;
 
 			JsonObject tmpOBJ = requestOBJ.getAsJsonObject("visitDetails").getAsJsonObject("visitDetails");
+			// Getting benflowID for ben status update
 			Long benFlowID = null;
 			benFlowID = nurseUtilityClass.getBenFlowID();
 
@@ -172,6 +173,7 @@ public class PNCServiceImpl implements PNCService {
 							benVisitID, benVisitCode);
 
 			} else {
+				// Error in visit details saving or it is null
 			}
 			if ((null != historySaveSuccessFlag && historySaveSuccessFlag > 0)
 					&& (null != pncSaveSuccessFlag && pncSaveSuccessFlag > 0)
@@ -408,7 +410,6 @@ public class PNCServiceImpl implements PNCService {
 					commonNurseServiceImpl.saveBenChiefComplaints(benChiefComplaintList);
 				}
 
-				// TODO Save Ben Upload Files
 			}
 			visitIdAndCodeMap.put("visitID", benVisitID);
 			visitIdAndCodeMap.put("visitCode", benVisitCode);
@@ -535,7 +536,6 @@ public class PNCServiceImpl implements PNCService {
 				menstrualDetails.setBenVisitID(benVisitID);
 				menstrualDetails.setVisitCode(benVisitCode);
 				menstrualHistorySuccessFlag = commonNurseServiceImpl.saveBenMenstrualHistory(menstrualDetails);
-				
 			}
 
 		} else {
@@ -554,13 +554,13 @@ public class PNCServiceImpl implements PNCService {
 				obstetricSuccessFlag = commonNurseServiceImpl.saveFemaleObstetricHistory(wrapperFemaleObstetricHistory);
 				
 			} else {
-				
+				// Female Obstetric Details not provided.
 			}
 
 		} else {
 			obstetricSuccessFlag = new Long(1);
 		}
-		
+		// Save Immunization History
 		if (pncHistoryOBJ != null && pncHistoryOBJ.has("immunizationHistory")
 				&& !pncHistoryOBJ.get("immunizationHistory").isJsonNull()) {
 			WrapperImmunizationHistory wrapperImmunizationHistory = InputMapper.gson()
@@ -570,13 +570,13 @@ public class PNCServiceImpl implements PNCService {
 				wrapperImmunizationHistory.setVisitCode(benVisitCode);
 				immunizationSuccessFlag = commonNurseServiceImpl.saveImmunizationHistory(wrapperImmunizationHistory);
 			} else {
-
+				// ImmunizationList Data not Available
 			}
 
 		} else {
 			immunizationSuccessFlag = new Long(1);
 		}
-		
+		// Save Other/Optional Vaccines History
 				if (pncHistoryOBJ != null && pncHistoryOBJ.has("childVaccineDetails")
 						&& !pncHistoryOBJ.get("childVaccineDetails").isJsonNull()) {
 					WrapperChildOptionalVaccineDetail wrapperChildVaccineDetail = InputMapper.gson()
@@ -587,6 +587,7 @@ public class PNCServiceImpl implements PNCService {
 						childVaccineSuccessFlag = commonNurseServiceImpl
 								.saveChildOptionalVaccineDetail(wrapperChildVaccineDetail);
 					} else {
+						// Child Optional Vaccine Detail not provided.
 					}
 
 				} else {
@@ -1463,6 +1464,7 @@ public class PNCServiceImpl implements PNCService {
 				throw new RuntimeException();
 			}
 		} else {
+			// request OBJ is null.
 		}
 		return updateSuccessFlag;
 	}

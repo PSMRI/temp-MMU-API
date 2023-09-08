@@ -44,6 +44,7 @@ public class DataSyncRepositoryCentral {
 
 	}
 
+	// Data Upload Repository
 	public int checkRecordIsAlreadyPresentOrNot(String schemaName, String tableName, String vanSerialNo, String vanID,
 			String vanAutoIncColumnName, int syncFacilityID) {
 		jdbcTemplate = getJdbcTemplate();
@@ -92,6 +93,7 @@ public class DataSyncRepositoryCentral {
 			return 0;
 	}
 
+	// Method for synchronization of data to central DB
 	public int[] syncDataToCentralDB(String schema, String tableName, String serverColumns, String query,
 			List<Object[]> syncDataList) {
 		jdbcTemplate = getJdbcTemplate();
@@ -124,10 +126,12 @@ public class DataSyncRepositoryCentral {
 
 			}
 		}
+		// start batch insert/update
 		int[] i = jdbcTemplate.batchUpdate(query, syncDataList);
 		return i;
 
 	}
+	// End of Data Upload Repository
 
 	public List<Map<String, Object>> getMasterDataFromTable(String schema, String table, String columnNames,
 			String masterType, Timestamp lastDownloadDate, Integer vanID, Integer psmID) throws Exception {
@@ -186,12 +190,12 @@ public class DataSyncRepositoryCentral {
 			}
 		}
 		queryBuilder.append(whereClause);
-
+		// Use PreparedStatement to avoid SQL injection and improve performance
 		String query = queryBuilder.toString();
 		Object[] queryParams = params.toArray();
-
+		// Use PreparedStatement for the entire query
 		resultSetList = jdbcTemplate.queryForList(query, queryParams);
 		return resultSetList;
 	}
-
+	// End of Data Download Repository
 }
