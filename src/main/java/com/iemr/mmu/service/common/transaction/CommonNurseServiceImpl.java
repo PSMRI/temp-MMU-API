@@ -247,7 +247,7 @@ public class CommonNurseServiceImpl implements CommonNurseService {
 			benVisitCount = 1;
 		}
 		beneficiaryVisitDetail.setVisitNo(benVisitCount);
-
+		// file id, comma seperated
 		String[] docIdArr = beneficiaryVisitDetail.getFileIDs();
 		StringBuilder sb = new StringBuilder();
 		if (docIdArr != null && docIdArr.length > 0) {
@@ -290,7 +290,7 @@ public class CommonNurseServiceImpl implements CommonNurseService {
 
 	public Long generateVisitCode(Long visitID, Integer vanID, Integer sessionID) {
 		String visitCode = "";
-
+		// van & session ID
 		String vanIDString = "";
 		int vanIdLength = (int) (Math.log10(vanID) + 1);
 
@@ -304,7 +304,7 @@ public class CommonNurseServiceImpl implements CommonNurseService {
 			visitIDString += "0";
 		}
 		visitIDString += visitID;
-
+		// Generating VISIT CODE
 		visitCode += sessionID + vanIDString + visitIDString;
 
 		int i = benVisitDetailRepo.updateVisitCode(Long.valueOf(visitCode), visitID);
@@ -490,7 +490,7 @@ public class CommonNurseServiceImpl implements CommonNurseService {
 
 		StringBuilder postAbortionComp;
 		StringBuilder postAbortionCompValues;
-
+		// iterate through pregnancy complication
 		for (FemaleObstetricHistory obj : femaleObstetricHistorylist) {
 			pregComplicationID = new StringBuilder();
 			pregComplicationName = new StringBuilder();
@@ -1733,7 +1733,7 @@ public class CommonNurseServiceImpl implements CommonNurseService {
 		ArrayList<Object[]> menstrualHistory = benMenstrualDetailsRepo.getBenMenstrualDetail(beneficiaryRegID,
 				visitCode);
 		BenMenstrualDetails menstrualHistoryDetails = BenMenstrualDetails.getBenMenstrualDetails(menstrualHistory);
-
+		// CRs changes
 		String problemID = menstrualHistoryDetails.getMenstrualProblemID();
 		String problemName = menstrualHistoryDetails.getProblemName();
 
@@ -2009,6 +2009,8 @@ public class CommonNurseServiceImpl implements CommonNurseService {
 		Integer r = 0;
 		int delRes = 0;
 		if (null != benMedHistory) {
+			// Delete Existing past History of beneficiary before inserting
+			// updated history
 			ArrayList<Object[]> benMedHistoryStatuses = benMedHistoryRepo
 					.getBenMedHistoryStatus(benMedHistory.getBeneficiaryRegID(), benMedHistory.getVisitCode());
 
@@ -2517,6 +2519,7 @@ public class CommonNurseServiceImpl implements CommonNurseService {
 		return r;
 	}
 
+	// save prescription of covid19
 	public Long savePrescriptionDetailsAndGetPrescriptionID(Long benRegID, Long benVisitID, Integer psmID,
 			String createdBy, String externalInvestigation, Long benVisitCode, Integer vanID, Integer parkingPlaceID,
 			ArrayList<SCTDescription> provisionalDiagnosisList) {
@@ -2602,7 +2605,7 @@ public class CommonNurseServiceImpl implements CommonNurseService {
 
 	public int updatePrescription(PrescriptionDetail prescription) {
 		int i = 0;
-
+		// SnomedCT new code
 		StringBuilder pdTerm = new StringBuilder();
 		StringBuilder pdConceptID = new StringBuilder();
 
@@ -2913,10 +2916,13 @@ public class CommonNurseServiceImpl implements CommonNurseService {
 			wrapperBenInvestigationANC.setPrescriptionID(prescriptionID);
 			investigationSuccessFlag = saveBenInvestigation(wrapperBenInvestigationANC);
 			if (investigationSuccessFlag != null && investigationSuccessFlag > 0) {
+				// Investigation data saved successfully.
 				res = 1;
 			} else {
+				// Something went wrong !!!
 			}
 		} else {
+			// Invalid Data..
 		}
 		return res;
 	}
@@ -2974,6 +2980,7 @@ public class CommonNurseServiceImpl implements CommonNurseService {
 		return WrapperRegWorklist.getRegistrarWorkList(nurseWorkListData);
 	}
 
+	// New Nurse worklist
 	public String getNurseWorkListNew(Integer providerServiceMapId, Integer vanID) {
 		Calendar cal = Calendar.getInstance();
 		if (nurseWL != null && nurseWL > 0 && nurseWL <= 30)
@@ -2988,6 +2995,7 @@ public class CommonNurseServiceImpl implements CommonNurseService {
 		return new Gson().toJson(obj);
 	}
 
+	// New Nurse worklist for TM referred patients
 	public String getNurseWorkListTMReferred(Integer providerServiceMapId, Integer vanID) {
 		Calendar cal = Calendar.getInstance();
 		cal.add(Calendar.DAY_OF_YEAR, -TMReferredWL);
@@ -2997,6 +3005,7 @@ public class CommonNurseServiceImpl implements CommonNurseService {
 		return new Gson().toJson(obj);
 	}
 
+	// New Lab worklist
 	public String getLabWorkListNew(Integer providerServiceMapId, Integer vanID) {
 		Calendar cal = Calendar.getInstance();
 
@@ -3012,6 +3021,7 @@ public class CommonNurseServiceImpl implements CommonNurseService {
 		return new Gson().toJson(obj);
 	}
 
+	// New radiologist worklist
 	public String getRadiologistWorkListNew(Integer providerServiceMapId, Integer vanID) {
 		Calendar cal = Calendar.getInstance();
 		if (radioWL != null && radioWL > 0 && radioWL <= 30)
@@ -3026,6 +3036,7 @@ public class CommonNurseServiceImpl implements CommonNurseService {
 		return new Gson().toJson(obj);
 	}
 
+	// New oncologist worklist
 	public String getOncologistWorkListNew(Integer providerServiceMapId, Integer vanID) {
 
 		Calendar cal = Calendar.getInstance();
@@ -3041,6 +3052,7 @@ public class CommonNurseServiceImpl implements CommonNurseService {
 		return new Gson().toJson(obj);
 	}
 
+	// New pharma worklist
 	public String getPharmaWorkListNew(Integer providerServiceMapId, Integer vanID) {
 
 		Calendar cal = Calendar.getInstance();
@@ -3610,6 +3622,7 @@ public class CommonNurseServiceImpl implements CommonNurseService {
 		return pysicalActivityHistorySuccessFlag;
 	}
 
+	// get Ben Symptomatic Questionnaire Details
 	@Override
 	public String getBenSymptomaticData(Long benRegID) throws Exception {
 		Map<String, Object> responseMap = new HashMap<>();
@@ -3646,9 +3659,9 @@ public class CommonNurseServiceImpl implements CommonNurseService {
 			}
 
 		}
-
+		// is diabetic check for ben
 		Integer i = iDRSDataRepo.isDiabeticCheck(benRegID);
-
+		// is hypertension check for ben
 		Integer j = iDRSDataRepo.isHypertensionCheck(benRegID);
 
 		Integer epilepsy = iDRSDataRepo.isEpilepsyCheck(benRegID);
