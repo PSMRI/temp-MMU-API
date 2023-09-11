@@ -34,6 +34,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
@@ -122,8 +124,6 @@ import com.iemr.mmu.repo.registrar.ReistrarRepoBenSearch;
 import com.iemr.mmu.utils.AESEncryption.AESEncryptionDecryption;
 import com.iemr.mmu.utils.exception.IEMRException;
 import com.iemr.mmu.utils.mapper.InputMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Service
 @PropertySource("classpath:application.properties")
@@ -247,7 +247,6 @@ public class CommonNurseServiceImpl implements CommonNurseService {
 			benVisitCount = 1;
 		}
 		beneficiaryVisitDetail.setVisitNo(benVisitCount);
-
 		// file id, comma seperated
 		String[] docIdArr = beneficiaryVisitDetail.getFileIDs();
 		StringBuilder sb = new StringBuilder();
@@ -261,38 +260,36 @@ public class CommonNurseServiceImpl implements CommonNurseService {
 		response = benVisitDetailRepo.save(beneficiaryVisitDetail);
 
 		if (response != null) {
-			// Long visitCode = updateVisitCode(response, 10);
 			return response.getBenVisitID();
 		} else
 			return null;
 
 	}
-	
-	public int getMaxCurrentdate(Long beneficiaryRegID,String visitreason,String visitcategory) throws IEMRException{
-		String maxDate=benVisitDetailRepo.getMaxCreatedDate(beneficiaryRegID,visitreason,visitcategory);
-		
-	    int i=0;
-		if(maxDate!=null) {
-		try {
-			DateFormat timeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-			String maxdateTrim=maxDate.substring(0, maxDate.indexOf("."));
-			java.util.Date  d = timeFormat.parse(maxdateTrim);
-			Calendar cal = Calendar.getInstance();
-			Calendar currDate = Calendar.getInstance();
-			cal.setTime(d);
-			cal.add(Calendar.MINUTE, 10);
-			 i= cal.compareTo(currDate);
-			 
-		} catch (ParseException e) {
-			throw new IEMRException("Error while parseing created date :" + e.getMessage());
-		}
+
+	public int getMaxCurrentdate(Long beneficiaryRegID, String visitreason, String visitcategory) throws IEMRException {
+		String maxDate = benVisitDetailRepo.getMaxCreatedDate(beneficiaryRegID, visitreason, visitcategory);
+
+		int i = 0;
+		if (maxDate != null) {
+			try {
+				DateFormat timeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+				String maxdateTrim = maxDate.substring(0, maxDate.indexOf("."));
+				java.util.Date d = timeFormat.parse(maxdateTrim);
+				Calendar cal = Calendar.getInstance();
+				Calendar currDate = Calendar.getInstance();
+				cal.setTime(d);
+				cal.add(Calendar.MINUTE, 10);
+				i = cal.compareTo(currDate);
+
+			} catch (ParseException e) {
+				throw new IEMRException("Error while parseing created date :" + e.getMessage());
+			}
 		}
 		return i;
 	}
 
 	public Long generateVisitCode(Long visitID, Integer vanID, Integer sessionID) {
 		String visitCode = "";
-
 		// van & session ID
 		String vanIDString = "";
 		int vanIdLength = (int) (Math.log10(vanID) + 1);
@@ -307,11 +304,7 @@ public class CommonNurseServiceImpl implements CommonNurseService {
 			visitIDString += "0";
 		}
 		visitIDString += visitID;
-
 		// Generating VISIT CODE
-		// visitCode += sessionID + dayString + monthString + vanIDString +
-		// visitIDString;
-		// changed logic 14 digit visit code, removed day & month
 		visitCode += sessionID + vanIDString + visitIDString;
 
 		int i = benVisitDetailRepo.updateVisitCode(Long.valueOf(visitCode), visitID);
@@ -327,11 +320,6 @@ public class CommonNurseServiceImpl implements CommonNurseService {
 		return i;
 	}
 
-	/**
-	 * Neeraj have created this for getting visit count of patient
-	 * 
-	 * @return
-	 */
 	public Short getBenVisitCount(Long benRegID) {
 		Short benVisitCount = benVisitDetailRepo.getVisitCountForBeneficiary(benRegID);
 
@@ -381,15 +369,12 @@ public class CommonNurseServiceImpl implements CommonNurseService {
 
 		}
 
-		// String fileIds[];
-
 		Map<String, String> fileMap;
 		ArrayList<Map<String, String>> fileList = new ArrayList<>();
 		if (benVisitDetailsOBJ != null && benVisitDetailsOBJ.getReportFilePath() != null
 				&& benVisitDetailsOBJ.getReportFilePath().trim().length() > 0) {
 
 			String fileIdsTemp[] = benVisitDetailsOBJ.getReportFilePath().split(",");
-			// fileIds = new String[fileIdsTemp.length];
 			for (String str : fileIdsTemp) {
 				if (str != null && str.trim().length() > 0) {
 					// DE40034072,20-04-2022, decrypting internal file path
@@ -404,18 +389,6 @@ public class CommonNurseServiceImpl implements CommonNurseService {
 				}
 			}
 
-//			String fileIdsTemp[] = benVisitDetailsOBJ.getReportFilePath().split(",");
-//			// fileIds = new String[fileIdsTemp.length];
-//			for (String str : fileIdsTemp) {
-//				if (str != null && str.trim().length() > 0) {
-//					String[] tempArr = str.split("\\/");
-//					fileMap = new HashMap<>();
-//					fileMap.put("filePath", str);
-//					fileMap.put("fileName", tempArr[tempArr.length - 1]);
-//
-//					fileList.add(fileMap);
-//				}
-//			}
 		}
 		if (benVisitDetailsOBJ1 != null) {
 			benVisitDetailsOBJ1.setFiles(fileList);
@@ -518,7 +491,6 @@ public class CommonNurseServiceImpl implements CommonNurseService {
 
 		StringBuilder postAbortionComp;
 		StringBuilder postAbortionCompValues;
-
 		// iterate through pregnancy complication
 		for (FemaleObstetricHistory obj : femaleObstetricHistorylist) {
 			pregComplicationID = new StringBuilder();
@@ -741,8 +713,6 @@ public class CommonNurseServiceImpl implements CommonNurseService {
 	}
 
 	public Long saveBeneficiaryPhysicalVitalDetails(BenPhysicalVitalDetail benPhysicalVitalDetail) {
-		// ArrayList<Short> averageSystolicList = new ArrayList<>();
-		// ArrayList<Short> averageDiastolicList = new ArrayList<>();
 
 		short sysBP = 0;
 		short dysBP = 0;
@@ -803,7 +773,6 @@ public class CommonNurseServiceImpl implements CommonNurseService {
 				processed = "N";
 			}
 
-			// anthropometryDetail.setModifiedBy(anthropometryDetail.getCreatedBy());
 			r = benAnthropometryRepo.updateANCCareDetails(anthropometryDetail.getWeight_Kg(),
 					anthropometryDetail.getHeight_cm(), anthropometryDetail.getbMI(),
 					anthropometryDetail.getHeadCircumference_cm(),
@@ -927,7 +896,6 @@ public class CommonNurseServiceImpl implements CommonNurseService {
 	}
 
 	public Long saveSysRespiratoryExamination(SysRespiratoryExamination respiratoryExamination) {
-		// TODO Auto-generated method stub
 		Long r = null;
 		SysRespiratoryExamination respiratoryExaminationRS = sysRespiratoryExaminationRepo.save(respiratoryExamination);
 		if (respiratoryExaminationRS != null)
@@ -936,7 +904,6 @@ public class CommonNurseServiceImpl implements CommonNurseService {
 	}
 
 	public Long saveSysCentralNervousExamination(SysCentralNervousExamination centralNervousExamination) {
-		// TODO Auto-generated method stub
 		Long r = null;
 		SysCentralNervousExamination centralNervousExaminationRS = sysCentralNervousExaminationRepo
 				.save(centralNervousExamination);
@@ -948,7 +915,6 @@ public class CommonNurseServiceImpl implements CommonNurseService {
 
 	public Long saveSysMusculoskeletalSystemExamination(
 			SysMusculoskeletalSystemExamination musculoskeletalSystemExamination) {
-		// TODO Auto-generated method stub
 		Long r = null;
 		SysMusculoskeletalSystemExamination musculoskeletalSystemExaminationRS = sysMusculoskeletalSystemExaminationRepo
 				.save(musculoskeletalSystemExamination);
@@ -960,7 +926,6 @@ public class CommonNurseServiceImpl implements CommonNurseService {
 
 	public Long saveSysGenitourinarySystemExamination(
 			SysGenitourinarySystemExamination genitourinarySystemExamination) {
-		// TODO Auto-generated method stub
 		Long r = null;
 		SysGenitourinarySystemExamination sysGenitourinarySystemExaminationRS = sysGenitourinarySystemExaminationRepo
 				.save(genitourinarySystemExamination);
@@ -1066,12 +1031,6 @@ public class CommonNurseServiceImpl implements CommonNurseService {
 		column.put("keyName", "tobaccoUseStatus");
 		columns.add(column);
 
-		/*
-		 * column = new HashMap<String, Object>(); column.put("columnName",
-		 * "Tobacco Use Type ID"); column.put("keyName", "tobaccoUseTypeID");
-		 * columns.add(column);
-		 */
-
 		column = new HashMap<String, Object>();
 		column.put("columnName", "Tobacco Use Type");
 		column.put("keyName", "tobaccoUseType");
@@ -1143,11 +1102,6 @@ public class CommonNurseServiceImpl implements CommonNurseService {
 		column.put("keyName", "alcoholIntakeStatus");
 		columns.add(column);
 
-		/*
-		 * column = new HashMap<String, Object>(); column.put("columnName",
-		 * "Alcohol Type ID"); column.put("keyName", "alcoholTypeID");
-		 * columns.add(column);
-		 */
 		column = new HashMap<String, Object>();
 		column.put("columnName", "Alcohol Type");
 		column.put("keyName", "alcoholType");
@@ -1221,12 +1175,6 @@ public class CommonNurseServiceImpl implements CommonNurseService {
 		column.put("columnName", "Allergy Name");
 		column.put("keyName", "allergyName");
 		columns.add(column);
-
-		/*
-		 * column = new HashMap<String, Object>(); column.put("columnName",
-		 * "Allergic Reaction Type ID"); column.put("keyName",
-		 * "allergicReactionTypeID"); columns.add(column);
-		 */
 
 		column = new HashMap<String, Object>();
 		column.put("columnName", "Allergic Reaction Type");
@@ -1304,12 +1252,6 @@ public class CommonNurseServiceImpl implements CommonNurseService {
 		column.put("columnName", "Date of Capture");
 		column.put("keyName", "captureDate");
 		columns.add(column);
-
-		/*
-		 * column = new HashMap<String, Object>(); column.put("columnName",
-		 * "Disease Type ID"); column.put("keyName", "diseaseTypeID");
-		 * columns.add(column);
-		 */
 
 		column = new HashMap<String, Object>();
 		column.put("columnName", "Disease Type");
@@ -1681,15 +1623,6 @@ public class CommonNurseServiceImpl implements CommonNurseService {
 		column.put("keyName", "otherVaccineName");
 		columns.add(column);
 
-		/** Later we will enable these two if needed **/
-		/*
-		 * column = new HashMap<String, Object>(); column.put("columnName", "Status");
-		 * column.put("keyName", "status"); columns.add(column);
-		 * 
-		 * column = new HashMap<String, Object>(); column.put("columnName",
-		 * "Received Date"); column.put("keyName", "receivedDate"); columns.add(column);
-		 */
-
 		column = new HashMap<String, Object>();
 		column.put("columnName", "Actual Receiving Age");
 		column.put("keyName", "actualReceivingAge");
@@ -1776,10 +1709,6 @@ public class CommonNurseServiceImpl implements CommonNurseService {
 	}
 
 	public BenFamilyHistory getFamilyHistoryDetail(Long beneficiaryRegID, Long visitCode) {
-//		BenFamilyHistory familyHistory = benFamilyHistoryRepo.getBenFamilyHistoryDetails(beneficiaryRegID, visitCode);
-//		
-//
-//		return new Gson().toJson(familyHistory);
 		ArrayList<Object[]> familyHistory = benFamilyHistoryRepo.getBenFamilyHisDetail(beneficiaryRegID, visitCode);
 		BenFamilyHistory familyHistoryDetails = BenFamilyHistory.getBenFamilyHist(familyHistory);
 
@@ -1805,8 +1734,6 @@ public class CommonNurseServiceImpl implements CommonNurseService {
 		ArrayList<Object[]> menstrualHistory = benMenstrualDetailsRepo.getBenMenstrualDetail(beneficiaryRegID,
 				visitCode);
 		BenMenstrualDetails menstrualHistoryDetails = BenMenstrualDetails.getBenMenstrualDetails(menstrualHistory);
-
-		// CRs changes, 30-10-2018
 		String problemID = menstrualHistoryDetails.getMenstrualProblemID();
 		String problemName = menstrualHistoryDetails.getProblemName();
 
@@ -1842,7 +1769,6 @@ public class CommonNurseServiceImpl implements CommonNurseService {
 
 	private WrapperFemaleObstetricHistory getWrapperFemaleObstetricHistory(
 			WrapperFemaleObstetricHistory femaleObstetricHistoryDetails) {
-		// s
 		if (femaleObstetricHistoryDetails != null
 				&& femaleObstetricHistoryDetails.getFemaleObstetricHistoryList() != null
 				&& femaleObstetricHistoryDetails.getFemaleObstetricHistoryList().size() > 0) {
@@ -1968,7 +1894,6 @@ public class CommonNurseServiceImpl implements CommonNurseService {
 			}
 
 		}
-		// e
 		return femaleObstetricHistoryDetails;
 	}
 
@@ -2594,6 +2519,7 @@ public class CommonNurseServiceImpl implements CommonNurseService {
 		return r;
 	}
 
+	// save prescription of covid19
 	public Long savePrescriptionDetailsAndGetPrescriptionID(Long benRegID, Long benVisitID, Integer psmID,
 			String createdBy, String externalInvestigation, Long benVisitCode, Integer vanID, Integer parkingPlaceID,
 			ArrayList<SCTDescription> provisionalDiagnosisList) {
@@ -2606,13 +2532,12 @@ public class CommonNurseServiceImpl implements CommonNurseService {
 		prescriptionDetail.setExternalInvestigation(externalInvestigation);
 		prescriptionDetail.setVanID(vanID);
 		prescriptionDetail.setParkingPlaceID(parkingPlaceID);
-		if(provisionalDiagnosisList != null)
+		if (provisionalDiagnosisList != null)
 			prescriptionDetail.setProvisionalDiagnosisList(provisionalDiagnosisList);
 
 		Long prescriptionID = saveBenPrescription(prescriptionDetail);
 		return prescriptionID;
 	}
-
 	// save prescription of covid19
 	public Long savePrescriptionDetailsCovid19(Long benRegID, Long benVisitID, Integer psmID, String createdBy,
 			String externalInvestigation, Long benVisitCode, Integer vanID, Integer parkingPlaceID,
@@ -2635,13 +2560,6 @@ public class CommonNurseServiceImpl implements CommonNurseService {
 	public Long saveBeneficiaryPrescription(JsonObject caseSheet) throws Exception {
 
 		PrescriptionDetail prescriptionDetail = InputMapper.gson().fromJson(caseSheet, PrescriptionDetail.class);
-		// String[] snomedCTArr =
-		// commonDoctorServiceImpl.getSnomedCTcode(prescriptionDetail.getDiagnosisProvided());
-		// if (snomedCTArr != null && snomedCTArr.length > 1) {
-		// prescriptionDetail.setDiagnosisProvided_SCTCode(snomedCTArr[0]);
-		// prescriptionDetail.setDiagnosisProvided_SCTTerm(snomedCTArr[1]);
-		// }
-		// prescriptionDetail.setPrescriptionID(null);
 		return saveBenPrescription(prescriptionDetail);
 	}
 
@@ -2675,7 +2593,6 @@ public class CommonNurseServiceImpl implements CommonNurseService {
 			}
 			prescription.setDiagnosisProvided(pdTerm.toString());
 			prescription.setDiagnosisProvided_SCTCode(pdConceptID.toString());
-			// prescription.setDiagnosisProvided_SCTTerm(pdTerm.toString());
 
 		}
 
@@ -2688,7 +2605,6 @@ public class CommonNurseServiceImpl implements CommonNurseService {
 
 	public int updatePrescription(PrescriptionDetail prescription) {
 		int i = 0;
-
 		// SnomedCT new code
 		StringBuilder pdTerm = new StringBuilder();
 		StringBuilder pdConceptID = new StringBuilder();
@@ -2716,7 +2632,6 @@ public class CommonNurseServiceImpl implements CommonNurseService {
 			}
 			prescription.setDiagnosisProvided(pdTerm.toString());
 			prescription.setDiagnosisProvided_SCTCode(pdConceptID.toString());
-			// prescription.setDiagnosisProvided_SCTTerm(pdTerm.toString());
 
 		}
 
@@ -3062,11 +2977,10 @@ public class CommonNurseServiceImpl implements CommonNurseService {
 
 	public String getNurseWorkList() {
 		List<Object[]> nurseWorkListData = reistrarRepoBenSearch.getNurseWorkList();
-		// System.out.println("hello");
 		return WrapperRegWorklist.getRegistrarWorkList(nurseWorkListData);
 	}
 
-	// New Nurse worklist.... 26-03-2018
+	// New Nurse worklist
 	public String getNurseWorkListNew(Integer providerServiceMapId, Integer vanID) {
 		Calendar cal = Calendar.getInstance();
 		if (nurseWL != null && nurseWL > 0 && nurseWL <= 30)
@@ -3081,28 +2995,17 @@ public class CommonNurseServiceImpl implements CommonNurseService {
 		return new Gson().toJson(obj);
 	}
 
-	// New Nurse worklist for TM referred patients.... 26-02-2021
+	// New Nurse worklist for TM referred patients
 	public String getNurseWorkListTMReferred(Integer providerServiceMapId, Integer vanID) {
 		Calendar cal = Calendar.getInstance();
 		cal.add(Calendar.DAY_OF_YEAR, -TMReferredWL);
 		long startTime = cal.getTimeInMillis();
 		ArrayList<BeneficiaryFlowStatus> obj = beneficiaryFlowStatusRepo
 				.getNurseWorklistTMreferred(providerServiceMapId, vanID, new Timestamp(startTime));
-		// Integer count=0;
-//           for(int i=0;i<obj.size();i++)
-//           {
-//        	   count=0;
-//        	   if(obj.get(i).getVisitCode()!=null)
-//        	   count=beneficiaryFlowStatusRepo.isTMvisitDone(obj.get(i).getVisitCode());
-//        	   if(count>0)
-//        		   obj.get(i).setIsTMVisitDone(true);
-//        	   else
-//        		   obj.get(i).setIsTMVisitDone(false);
-//           }
 		return new Gson().toJson(obj);
 	}
 
-	// New Lab worklist.... 26-03-2018
+	// New Lab worklist
 	public String getLabWorkListNew(Integer providerServiceMapId, Integer vanID) {
 		Calendar cal = Calendar.getInstance();
 
@@ -3118,7 +3021,7 @@ public class CommonNurseServiceImpl implements CommonNurseService {
 		return new Gson().toJson(obj);
 	}
 
-	// New radiologist worklist.... 26-03-2018
+	// New radiologist worklist
 	public String getRadiologistWorkListNew(Integer providerServiceMapId, Integer vanID) {
 		Calendar cal = Calendar.getInstance();
 		if (radioWL != null && radioWL > 0 && radioWL <= 30)
@@ -3133,7 +3036,7 @@ public class CommonNurseServiceImpl implements CommonNurseService {
 		return new Gson().toJson(obj);
 	}
 
-	// New oncologist worklist.... 26-03-2018
+	// New oncologist worklist
 	public String getOncologistWorkListNew(Integer providerServiceMapId, Integer vanID) {
 
 		Calendar cal = Calendar.getInstance();
@@ -3149,7 +3052,7 @@ public class CommonNurseServiceImpl implements CommonNurseService {
 		return new Gson().toJson(obj);
 	}
 
-	// New pharma worklist.... 26-03-2018
+	// New pharma worklist
 	public String getPharmaWorkListNew(Integer providerServiceMapId, Integer vanID) {
 
 		Calendar cal = Calendar.getInstance();
@@ -3381,39 +3284,20 @@ public class CommonNurseServiceImpl implements CommonNurseService {
 		column.put("keyName", "grossMotorMilestone");
 		columns.add(column);
 
-		/*
-		 * column = new HashMap<>(); column.put("columnName", "Is GMM Attained");
-		 * column.put("keyName", "isGMMAttained"); columns.add(column);
-		 */
-
 		column = new HashMap<>();
 		column.put("columnName", "Fine Motor Milestone");
 		column.put("keyName", "fineMotorMilestone");
 		columns.add(column);
 
-		/*
-		 * column = new HashMap<>(); column.put("columnName", "Is FMM Attained");
-		 * column.put("keyName", "isFMMAttained"); columns.add(column);
-		 */
 		column = new HashMap<>();
 		column.put("columnName", "Social Milestone");
 		column.put("keyName", "socialMilestone");
 		columns.add(column);
 
-		/*
-		 * column = new HashMap<>(); column.put("columnName", "Is SM Attained");
-		 * column.put("keyName", "isSMAttained"); columns.add(column);
-		 */
-
 		column = new HashMap<>();
 		column.put("columnName", "Language Milestone");
 		column.put("keyName", "languageMilestone");
 		columns.add(column);
-
-		/*
-		 * column = new HashMap<>(); column.put("columnName", "Is LM Attained");
-		 * column.put("keyName", "isLMAttained"); columns.add(column);
-		 */
 
 		column = new HashMap<>();
 		column.put("columnName", "Development Problem");
@@ -3706,7 +3590,6 @@ public class CommonNurseServiceImpl implements CommonNurseService {
 	}
 
 	public int updateBenFamilyHistoryNCDScreening(BenFamilyHistory benFamilyHistory) {
-		// TODO Auto-generated method stub
 		int familyHistorySuccessFlag = 0;
 
 		ArrayList<BenFamilyHistory> familyHistoryList = benFamilyHistory.getBenFamilyHist();
@@ -3723,16 +3606,8 @@ public class CommonNurseServiceImpl implements CommonNurseService {
 	}
 
 	public int updateBenPhysicalActivityHistoryNCDScreening(PhysicalActivityType physicalActivityType) {
-		// TODO Auto-generated method stub
 		int pysicalActivityHistorySuccessFlag = 0;
 
-//		ArrayList<BenFamilyHistory> familyHistoryList = benFamilyHistory.getBenFamilyHistory();
-//		if (familyHistoryList.size() > 0) {
-//			ArrayList<BenFamilyHistory> res = (ArrayList<BenFamilyHistory>) benFamilyHistoryRepo
-//					.save(familyHistoryList);
-//			if (familyHistoryList.size() == res.size()) {
-//				familyHistorySuccessFlag = 1;
-//			}
 		if (physicalActivityType.getID() != null)
 			physicalActivityType.setProcessed("U");
 		else
@@ -3785,10 +3660,8 @@ public class CommonNurseServiceImpl implements CommonNurseService {
 			}
 
 		}
-
 		// is diabetic check for ben
 		Integer i = iDRSDataRepo.isDiabeticCheck(benRegID);
-
 		// is hypertension check for ben
 		Integer j = iDRSDataRepo.isHypertensionCheck(benRegID);
 

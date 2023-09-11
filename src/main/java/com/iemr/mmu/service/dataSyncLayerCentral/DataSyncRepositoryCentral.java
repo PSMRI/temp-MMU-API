@@ -32,12 +32,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
-/***
- * 
- * @author NE298657
- *
- */
-
 @Service
 public class DataSyncRepositoryCentral {
 	@Autowired
@@ -60,11 +54,7 @@ public class DataSyncRepositoryCentral {
 		StringBuilder queryBuilder = new StringBuilder("SELECT ");
 		queryBuilder.append(vanAutoIncColumnName);
 		queryBuilder.append(" FROM ");
-		queryBuilder.append(schemaName+"."+tableName);
-
-		//params.add(vanAutoIncColumnName);
-		//params.add(schemaName);
-		//params.add(tableName);
+		queryBuilder.append(schemaName + "." + tableName);
 
 		StringBuilder whereClause = new StringBuilder();
 		whereClause.append(" WHERE ");
@@ -112,7 +102,6 @@ public class DataSyncRepositoryCentral {
 				Object[] array = syncDataList.get(i);// Arrey 1
 
 				if (query.startsWith("INSERT")) {
-//					array = new Object[] {serverColumns, array };
 					syncDataList.set(i, array);
 				}
 			}
@@ -121,28 +110,18 @@ public class DataSyncRepositoryCentral {
 
 				Object[] array = syncDataList.get(i);// Arrey 1
 				String[] columnsArray = null;
-				if(null != serverColumns)
-				columnsArray = serverColumns.split(","); // arrey 2
+				if (null != serverColumns)
+					columnsArray = serverColumns.split(","); // arrey 2
 
 				List<Object> Newarray = new ArrayList<>();
 
 				int arrayIndex = 0;
 				int columnsArrayIndex = 0;
-				//Newarray.add(schema);
-				//Newarray.add(tableName);
-				//while (columnsArrayIndex < columnsArray.length || arrayIndex < array.length) {
-					if (null != columnsArray && columnsArrayIndex < columnsArray.length) {
-						Newarray.add(columnsArray[columnsArrayIndex]);
-						columnsArrayIndex++;
-					}
+				if (null != columnsArray && columnsArrayIndex < columnsArray.length) {
+					Newarray.add(columnsArray[columnsArrayIndex]);
+					columnsArrayIndex++;
+				}
 
-					/*
-					 * if (arrayIndex < array.length) { Newarray.add(array); arrayIndex++; }
-					 */
-				//}
-
-				// Convert Newarray back to an array
-				//Object[] resultArray = Newarray.toArray(new Object[0]);
 				syncDataList.set(i, array);
 
 			}
@@ -152,7 +131,6 @@ public class DataSyncRepositoryCentral {
 		return i;
 
 	}
-
 	// End of Data Upload Repository
 
 	public List<Map<String, Object>> getMasterDataFromTable(String schema, String table, String columnNames,
@@ -212,15 +190,12 @@ public class DataSyncRepositoryCentral {
 			}
 		}
 		queryBuilder.append(whereClause);
-
 		// Use PreparedStatement to avoid SQL injection and improve performance
 		String query = queryBuilder.toString();
 		Object[] queryParams = params.toArray();
-
 		// Use PreparedStatement for the entire query
 		resultSetList = jdbcTemplate.queryForList(query, queryParams);
 		return resultSetList;
 	}
-
 	// End of Data Download Repository
 }

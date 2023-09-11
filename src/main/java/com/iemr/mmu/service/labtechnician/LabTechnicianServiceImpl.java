@@ -131,11 +131,6 @@ public class LabTechnicianServiceImpl implements LabTechnicianService {
 					procDetails.put("calibrationStartAPI", obj.getCalibrationStartAPI());
 					procDetails.put("calibrationStatusAPI", obj.getCalibrationStatusAPI());
 					procDetails.put("calibrationEndAPI", obj.getCalibrationEndAPI());
-					// System.out.println(procDetails.get("procedureID"));
-//					if (procDetails.get("procedureID") instanceof Integer
-//							&& obj.getProcedureID() == procDetails.get("procedureID")) {
-//						//System.out.println("hello");
-//					}
 					if (procDetails.containsKey("compListDetails") == false) {
 						compList = new ArrayList<>();
 						compDetails = new HashMap<>();
@@ -283,55 +278,6 @@ public class LabTechnicianServiceImpl implements LabTechnicianService {
 		return returnOBJ;
 	}
 
-	/*
-	 * @Transactional(rollbackFor = Exception.class) public Integer
-	 * saveLabTestResult(JsonObject requestOBJ) throws Exception {
-	 * 
-	 * Integer labResultSaveFlag = null; if (requestOBJ != null &&
-	 * requestOBJ.has("labTestResults") && null != requestOBJ.get("labTestResults")
-	 * && !requestOBJ.get("labTestResults").isJsonNull()) {
-	 * 
-	 * LabResultEntry[] labResults =
-	 * InputMapper.gson().fromJson(requestOBJ.get("labTestResults"),
-	 * LabResultEntry[].class); List<LabResultEntry> labResultsList =
-	 * Arrays.asList(labResults);
-	 * 
-	 * if(null != labResultsList && labResultsList.size()>0){ List<LabResultEntry>
-	 * labResultsListNew = new ArrayList<LabResultEntry>(); for(LabResultEntry
-	 * labResult : labResultsList){ List<Map<String, String>> compResult =
-	 * labResult.getCompList(); if(null != compResult && compResult.size()>0){
-	 * for(Map<String, String> comp: compResult){ LabResultEntry labCompResult = new
-	 * LabResultEntry();
-	 * labCompResult.setPrescriptionID(labResult.getPrescriptionID());
-	 * labCompResult.setProcedureID(labResult.getProcedureID());
-	 * 
-	 * if(null != comp.get("testComponentID") &&
-	 * !comp.get("testComponentID").toString().isEmpty() && null !=
-	 * comp.get("testResultValue") &&
-	 * !comp.get("testResultValue").toString().isEmpty()){
-	 * labCompResult.setTestComponentID(Integer.parseInt(comp.get(
-	 * "testComponentID")));
-	 * labCompResult.setTestResultValue(comp.get("testResultValue").toString());
-	 * 
-	 * if(requestOBJ.has("beneficiaryRegID") && null !=
-	 * requestOBJ.get("beneficiaryRegID") &&
-	 * !requestOBJ.get("beneficiaryRegID").isJsonArray()){
-	 * labCompResult.setBeneficiaryRegID(requestOBJ.get("beneficiaryRegID").
-	 * getAsLong()); }
-	 * 
-	 * if(requestOBJ.has("createdBy") && null != requestOBJ.get("createdBy") &&
-	 * !requestOBJ.get("createdBy").isJsonArray()){
-	 * labCompResult.setCreatedBy(requestOBJ.get("createdBy").toString()); }
-	 * 
-	 * labResultsListNew.add(labCompResult); }
-	 * 
-	 * } } } List<LabResultEntry> labResultEntryRes = (List<LabResultEntry>)
-	 * labResultEntryRepo.save(labResultsListNew); if(null != labResultEntryRes &&
-	 * labResultsListNew.size() == labResultEntryRes.size()){ labResultSaveFlag = 1;
-	 * } }else{ labResultSaveFlag = 1; } }else{ labResultSaveFlag = 1; } return
-	 * labResultSaveFlag; }
-	 */
-
 	@Transactional(rollbackFor = Exception.class)
 	public Integer saveLabTestResult(JsonObject requestOBJ) throws Exception {
 
@@ -441,7 +387,6 @@ public class LabTechnicianServiceImpl implements LabTechnicianService {
 
 							if (comp.containsKey("ecgAbnormalities") && comp.get("ecgAbnormalities") != null) {
 								List<String> ecgAbnormalitiesList = (List<String>) comp.get("ecgAbnormalities");
-								// String[] ecgAbnormalities = (String[]) comp.get("ecgAbnormalities");
 
 								if (ecgAbnormalitiesList != null && ecgAbnormalitiesList.size() > 0) {
 									StringBuilder sb = new StringBuilder();
@@ -479,7 +424,6 @@ public class LabTechnicianServiceImpl implements LabTechnicianService {
 
 				labResultEntry.setVanID(wrapperLabResults.getVanID());
 				labResultEntry.setParkingPlaceID(wrapperLabResults.getParkingPlaceID());
-
 				// add file/doc id
 				String[] docIdArr = labResultEntry.getFileIDs();
 				StringBuilder sb = new StringBuilder();

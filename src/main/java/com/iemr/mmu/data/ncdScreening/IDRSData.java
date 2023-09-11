@@ -30,23 +30,16 @@ import java.util.regex.Pattern;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import com.google.gson.annotations.Expose;
-import com.iemr.mmu.annotation.sqlinjection.SQLInjectionSafe;
-import com.iemr.mmu.data.anc.BenFamilyHistory;
-import com.iemr.mmu.data.benFlowStatus.BeneficiaryFlowStatus;
-import com.iemr.mmu.data.covid19.Covid19BenFeedback;
 
 @Entity
-@Table(name = "t_idrsdetails") /* t_idrsdetails_datasync */
-/* t_idrsDetails */
+@Table(name = "t_idrsdetails")
+
 public class IDRSData {
 	@Id
 	@GeneratedValue
@@ -61,11 +54,6 @@ public class IDRSData {
 	@Expose
 	@Column(name = "BenVisitID")
 	private Long benVisitID;
-
-//	 @OneToOne(fetch = FetchType.EAGER)
-//		@JoinColumn(name = "visitCode", insertable = false, updatable = false)
-//		@Expose
-//		private BeneficiaryFlowStatus beneficiaryFlowStatus;
 
 	@Expose
 	@Column(name = "ProviderServiceMapID")
@@ -155,35 +143,6 @@ public class IDRSData {
 	@Column(name = "Questionids")
 	private String questionIds;
 
-	/*
-	 * @Expose
-	 * 
-	 * @Column(name = "Questions", columnDefinition = "TEXT") private String
-	 * questions;
-	 * 
-	 * @Expose
-	 * 
-	 * @Column(name = "Answers") private String answers;
-	 * 
-	 * @Expose
-	 * 
-	 * @Column(name = "DiseaseQuestionTypes") private String diseaseQuestionTypes;
-	 * 
-	 * 
-	 * 
-	 * public String getQuestions() { return questions; }
-	 * 
-	 * public void setQuestions(String questions) { this.questions = questions; }
-	 * 
-	 * public String getAnswers() { return answers; }
-	 * 
-	 * public void setAnswers(String answers) { this.answers = answers; }
-	 * 
-	 * public String getDiseaseQuestionTypes() { return diseaseQuestionTypes; }
-	 * 
-	 * public void setDiseaseQuestionTypes(String diseaseQuestionTypes) {
-	 * this.diseaseQuestionTypes = diseaseQuestionTypes; }
-	 */
 	public String getQuestionIds() {
 		return questionIds;
 	}
@@ -418,7 +377,6 @@ public class IDRSData {
 
 	public IDRSData() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 	public IDRSData(Long beneficiaryRegID, Long benVisitID, Integer providerServiceMapID, Integer idrsScore,
@@ -469,9 +427,9 @@ public class IDRSData {
 
 			List<Map<String, Object>> idrsDetails = new ArrayList<Map<String, Object>>();
 			String[] questionsId = null;
-			String[] questions=null;
-			String[] answars=null;
-			String[] dqs=null;
+			String[] questions = null;
+			String[] answars = null;
+			String[] dqs = null;
 			if (obj1[12] != null && obj1[6] != null && obj1[7] != null && obj1[10] != null) {
 				questionsId = ((String) obj1[12].toString()).split(Pattern.quote("||"));
 
@@ -480,7 +438,6 @@ public class IDRSData {
 				dqs = ((String) obj1[10].toString()).split(Pattern.quote("||"));
 			}
 
-			// Long a = (long) 0;
 			if (questionsId != null && answars != null && dqs != null && questions != null) {
 				for (int i = 0; i < questionsId.length; i++) {
 
@@ -496,35 +453,8 @@ public class IDRSData {
 					idrsData.put("suspectDisease", idDetails.getDiseaseQuestionType());
 
 					idrsDetails.add(idrsData);
-					// a++;
 				}
 			}
-
-			/*
-			 * for (Object[] obj : idrsHistory) {
-			 * 
-			 * 
-			 * IDRSData idDetails = new IDRSData((Long) obj[0],(Integer) obj[4], (String)
-			 * obj[6], (String) obj[7], (String) obj[10]);
-			 * 
-			 * Map<String, Object> idrsData = new HashMap<String, Object>();
-			 * idrsData.put("ID", idDetails.getId()); idrsData.put("idrsQuestionId",
-			 * idDetails.getIdrsQuestionID());
-			 * 
-			 * idrsData.put("question", idDetails.getQuestion()); idrsData.put("answer",
-			 * idDetails.getAnswer()); idrsData.put("suspectDisease",
-			 * idDetails.getDiseaseQuestionType()); idrsDetails.add(idrsData); }
-			 */
-
-//			for (Object[] obj : idrsHistory) {
-//				IDRSData idDetails = new IDRSData((String) obj[8]);
-//				if (idDetails.getSuspectedDisease() != null) {
-//					String[] susDisease = idDetails.getSuspectedDisease().split(",");
-//					if (susDisease != null)
-//						idDetails.setSuspectArray(susDisease);
-//				}
-//				
-//			}
 
 			benIdrsHistory.setIdrsDetails(idrsDetails);
 		}
@@ -532,7 +462,6 @@ public class IDRSData {
 	}
 
 	private void setSuspectedDisease(Map<String, Object> familyDiseases) {
-		// TODO Auto-generated method stub
 
 	}
 
