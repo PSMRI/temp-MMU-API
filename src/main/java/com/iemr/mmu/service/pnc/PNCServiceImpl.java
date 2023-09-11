@@ -146,7 +146,8 @@ public class PNCServiceImpl implements PNCService {
 			Long vitalSaveSuccessFlag = null;
 			Long examtnSaveSuccessFlag = null;
 			Integer i = null;
-
+			// temporary object for ben flow part. for getting visit reason and
+			// category and ben reg id
 			JsonObject tmpOBJ = requestOBJ.getAsJsonObject("visitDetails").getAsJsonObject("visitDetails");
 			// Getting benflowID for ben status update
 			Long benFlowID = null;
@@ -182,7 +183,6 @@ public class PNCServiceImpl implements PNCService {
 
 				saveSuccessFlag = historySaveSuccessFlag;
 
-				
 				int j = updateBenStatusFlagAfterNurseSaveSuccess(tmpOBJ, benVisitID, benFlowID, benVisitCode,
 						nurseUtilityClass.getVanID());
 
@@ -371,8 +371,6 @@ public class PNCServiceImpl implements PNCService {
 		return saveSuccessFlag;
 	}
 
-	
-
 	/**
 	 * 
 	 * @param requestOBJ
@@ -387,33 +385,35 @@ public class PNCServiceImpl implements PNCService {
 
 			BeneficiaryVisitDetail benVisitDetailsOBJ = InputMapper.gson().fromJson(visitDetailsOBJ.get("visitDetails"),
 					BeneficiaryVisitDetail.class);
-			int i=commonNurseServiceImpl.getMaxCurrentdate(benVisitDetailsOBJ.getBeneficiaryRegID(),benVisitDetailsOBJ.getVisitReason(),benVisitDetailsOBJ.getVisitCategory());
-			if(i<1) {
-			benVisitID = commonNurseServiceImpl.saveBeneficiaryVisitDetails(benVisitDetailsOBJ);
+			int i = commonNurseServiceImpl.getMaxCurrentdate(benVisitDetailsOBJ.getBeneficiaryRegID(),
+					benVisitDetailsOBJ.getVisitReason(), benVisitDetailsOBJ.getVisitCategory());
+			if (i < 1) {
+				benVisitID = commonNurseServiceImpl.saveBeneficiaryVisitDetails(benVisitDetailsOBJ);
 
-			Long benVisitCode = commonNurseServiceImpl.generateVisitCode(benVisitID, nurseUtilityClass.getVanID(),
-					nurseUtilityClass.getSessionID());
+				Long benVisitCode = commonNurseServiceImpl.generateVisitCode(benVisitID, nurseUtilityClass.getVanID(),
+						nurseUtilityClass.getSessionID());
 
-			if (benVisitID != null && benVisitID > 0) {
-				if (visitDetailsOBJ.has("chiefComplaints") && !visitDetailsOBJ.get("chiefComplaints").isJsonNull()) {
-					// Save Ben Chief Complaints
-					BenChiefComplaint[] benChiefComplaintArray = InputMapper.gson()
-							.fromJson(visitDetailsOBJ.get("chiefComplaints"), BenChiefComplaint[].class);
+				if (benVisitID != null && benVisitID > 0) {
+					if (visitDetailsOBJ.has("chiefComplaints")
+							&& !visitDetailsOBJ.get("chiefComplaints").isJsonNull()) {
+						// Save Ben Chief Complaints
+						BenChiefComplaint[] benChiefComplaintArray = InputMapper.gson()
+								.fromJson(visitDetailsOBJ.get("chiefComplaints"), BenChiefComplaint[].class);
 
-					List<BenChiefComplaint> benChiefComplaintList = Arrays.asList(benChiefComplaintArray);
-					if (null != benChiefComplaintList && benChiefComplaintList.size() > 0) {
-						for (BenChiefComplaint benChiefComplaint : benChiefComplaintList) {
-							benChiefComplaint.setBenVisitID(benVisitID);
-							benChiefComplaint.setVisitCode(benVisitCode);
+						List<BenChiefComplaint> benChiefComplaintList = Arrays.asList(benChiefComplaintArray);
+						if (null != benChiefComplaintList && benChiefComplaintList.size() > 0) {
+							for (BenChiefComplaint benChiefComplaint : benChiefComplaintList) {
+								benChiefComplaint.setBenVisitID(benVisitID);
+								benChiefComplaint.setVisitCode(benVisitCode);
+							}
 						}
+						commonNurseServiceImpl.saveBenChiefComplaints(benChiefComplaintList);
 					}
-					commonNurseServiceImpl.saveBenChiefComplaints(benChiefComplaintList);
-				}
 
+				}
+				visitIdAndCodeMap.put("visitID", benVisitID);
+				visitIdAndCodeMap.put("visitCode", benVisitCode);
 			}
-			visitIdAndCodeMap.put("visitID", benVisitID);
-			visitIdAndCodeMap.put("visitCode", benVisitCode);
-		}
 		}
 		return visitIdAndCodeMap;
 	}
@@ -445,7 +445,7 @@ public class PNCServiceImpl implements PNCService {
 				benMedHistory.setBenVisitID(benVisitID);
 				benMedHistory.setVisitCode(benVisitCode);
 				pastHistorySuccessFlag = commonNurseServiceImpl.saveBenPastHistory(benMedHistory);
-				
+
 			}
 
 		} else {
@@ -461,7 +461,7 @@ public class PNCServiceImpl implements PNCService {
 				wrapperComorbidCondDetails.setBenVisitID(benVisitID);
 				wrapperComorbidCondDetails.setVisitCode(benVisitCode);
 				comrbidSuccessFlag = commonNurseServiceImpl.saveBenComorbidConditions(wrapperComorbidCondDetails);
-				
+
 			}
 		} else {
 			comrbidSuccessFlag = new Long(1);
@@ -478,7 +478,6 @@ public class PNCServiceImpl implements PNCService {
 				wrapperMedicationHistory.setVisitCode(benVisitCode);
 				medicationSuccessFlag = commonNurseServiceImpl.saveBenMedicationHistory(wrapperMedicationHistory);
 
-				
 			} else {
 				medicationSuccessFlag = new Long(1);
 			}
@@ -495,7 +494,7 @@ public class PNCServiceImpl implements PNCService {
 				personalHabit.setBenVisitID(benVisitID);
 				personalHabit.setVisitCode(benVisitCode);
 				personalHistorySuccessFlag = commonNurseServiceImpl.savePersonalHistory(personalHabit);
-				
+
 			}
 
 			BenAllergyHistory benAllergyHistory = InputMapper.gson().fromJson(pncHistoryOBJ.get("personalHistory"),
@@ -504,7 +503,7 @@ public class PNCServiceImpl implements PNCService {
 				benAllergyHistory.setBenVisitID(benVisitID);
 				benAllergyHistory.setVisitCode(benVisitCode);
 				allergyHistorySuccessFlag = commonNurseServiceImpl.saveAllergyHistory(benAllergyHistory);
-				
+
 			}
 
 		} else {
@@ -521,7 +520,7 @@ public class PNCServiceImpl implements PNCService {
 				benFamilyHistory.setBenVisitID(benVisitID);
 				benFamilyHistory.setVisitCode(benVisitCode);
 				familyHistorySuccessFlag = commonNurseServiceImpl.saveBenFamilyHistory(benFamilyHistory);
-				
+
 			}
 		} else {
 			familyHistorySuccessFlag = new Long(1);
@@ -552,7 +551,7 @@ public class PNCServiceImpl implements PNCService {
 				wrapperFemaleObstetricHistory.setBenVisitID(benVisitID);
 				wrapperFemaleObstetricHistory.setVisitCode(benVisitCode);
 				obstetricSuccessFlag = commonNurseServiceImpl.saveFemaleObstetricHistory(wrapperFemaleObstetricHistory);
-				
+
 			} else {
 				// Female Obstetric Details not provided.
 			}
@@ -560,6 +559,7 @@ public class PNCServiceImpl implements PNCService {
 		} else {
 			obstetricSuccessFlag = new Long(1);
 		}
+		/** For Female above 12 and below 16 years.. **/
 		// Save Immunization History
 		if (pncHistoryOBJ != null && pncHistoryOBJ.has("immunizationHistory")
 				&& !pncHistoryOBJ.get("immunizationHistory").isJsonNull()) {
@@ -577,24 +577,22 @@ public class PNCServiceImpl implements PNCService {
 			immunizationSuccessFlag = new Long(1);
 		}
 		// Save Other/Optional Vaccines History
-				if (pncHistoryOBJ != null && pncHistoryOBJ.has("childVaccineDetails")
-						&& !pncHistoryOBJ.get("childVaccineDetails").isJsonNull()) {
-					WrapperChildOptionalVaccineDetail wrapperChildVaccineDetail = InputMapper.gson()
-							.fromJson(pncHistoryOBJ.get("childVaccineDetails"), WrapperChildOptionalVaccineDetail.class);
-					if (null != wrapperChildVaccineDetail) {
-						wrapperChildVaccineDetail.setBenVisitID(benVisitID);
-						wrapperChildVaccineDetail.setVisitCode(benVisitCode);
-						childVaccineSuccessFlag = commonNurseServiceImpl
-								.saveChildOptionalVaccineDetail(wrapperChildVaccineDetail);
-					} else {
-						// Child Optional Vaccine Detail not provided.
-					}
+		if (pncHistoryOBJ != null && pncHistoryOBJ.has("childVaccineDetails")
+				&& !pncHistoryOBJ.get("childVaccineDetails").isJsonNull()) {
+			WrapperChildOptionalVaccineDetail wrapperChildVaccineDetail = InputMapper.gson()
+					.fromJson(pncHistoryOBJ.get("childVaccineDetails"), WrapperChildOptionalVaccineDetail.class);
+			if (null != wrapperChildVaccineDetail) {
+				wrapperChildVaccineDetail.setBenVisitID(benVisitID);
+				wrapperChildVaccineDetail.setVisitCode(benVisitCode);
+				childVaccineSuccessFlag = commonNurseServiceImpl
+						.saveChildOptionalVaccineDetail(wrapperChildVaccineDetail);
+			} else {
+				// Child Optional Vaccine Detail not provided.
+			}
 
-				} else {
-					childVaccineSuccessFlag = new Long(1);
-				}
-		
-		
+		} else {
+			childVaccineSuccessFlag = new Long(1);
+		}
 
 		Long historySuccessFlag = null;
 
@@ -603,7 +601,7 @@ public class PNCServiceImpl implements PNCService {
 				&& (null != medicationSuccessFlag && medicationSuccessFlag > 0)
 				&& (null != allergyHistorySuccessFlag && allergyHistorySuccessFlag > 0)
 				&& (null != familyHistorySuccessFlag && familyHistorySuccessFlag > 0)
-				&& (null != obstetricSuccessFlag && obstetricSuccessFlag > 0) 
+				&& (null != obstetricSuccessFlag && obstetricSuccessFlag > 0)
 				&& (null != immunizationSuccessFlag && immunizationSuccessFlag > 0)
 				&& (null != childVaccineSuccessFlag && childVaccineSuccessFlag > 0) && personalHistorySuccessFlag > 0
 				&& menstrualHistorySuccessFlag > 0) {
@@ -612,7 +610,6 @@ public class PNCServiceImpl implements PNCService {
 		return historySuccessFlag;
 	}
 
-	
 	public Long saveBenPNCDetails(JsonObject pncDetailsOBJ, Long benVisitID, Long benVisitCode) throws Exception {
 
 		Long pncSuccessFlag = null;
@@ -828,7 +825,7 @@ public class PNCServiceImpl implements PNCService {
 		return exmnSuccessFlag;
 	}
 
-
+	// ----------Fetch ANC (Nurse) --------------------------------------
 	@Override
 	public String getBenVisitDetailsFrmNursePNC(Long benRegID, Long visitCode) throws Exception {
 		Map<String, Object> resMap = new HashMap<>();
@@ -909,7 +906,6 @@ public class PNCServiceImpl implements PNCService {
 		return new Gson().toJson(examinationDetailsMap);
 	}
 
-	
 	/**
 	 * 
 	 * @param requestOBJ

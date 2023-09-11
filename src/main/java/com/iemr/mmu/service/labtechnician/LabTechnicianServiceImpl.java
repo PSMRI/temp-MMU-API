@@ -424,7 +424,7 @@ public class LabTechnicianServiceImpl implements LabTechnicianService {
 
 				labResultEntry.setVanID(wrapperLabResults.getVanID());
 				labResultEntry.setParkingPlaceID(wrapperLabResults.getParkingPlaceID());
-
+				// add file/doc id
 				String[] docIdArr = labResultEntry.getFileIDs();
 				StringBuilder sb = new StringBuilder();
 				if (docIdArr != null && docIdArr.length > 0) {

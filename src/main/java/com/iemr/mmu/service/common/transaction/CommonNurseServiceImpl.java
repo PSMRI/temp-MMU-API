@@ -377,6 +377,7 @@ public class CommonNurseServiceImpl implements CommonNurseService {
 			String fileIdsTemp[] = benVisitDetailsOBJ.getReportFilePath().split(",");
 			for (String str : fileIdsTemp) {
 				if (str != null && str.trim().length() > 0) {
+					// DE40034072,20-04-2022, decrypting internal file path
 					String decryptedFilePath = null;
 					decryptedFilePath = aESEncryptionDecryption.decrypt(str);
 					String[] tempArr = decryptedFilePath.split("\\/");
@@ -1733,7 +1734,6 @@ public class CommonNurseServiceImpl implements CommonNurseService {
 		ArrayList<Object[]> menstrualHistory = benMenstrualDetailsRepo.getBenMenstrualDetail(beneficiaryRegID,
 				visitCode);
 		BenMenstrualDetails menstrualHistoryDetails = BenMenstrualDetails.getBenMenstrualDetails(menstrualHistory);
-		// CRs changes
 		String problemID = menstrualHistoryDetails.getMenstrualProblemID();
 		String problemName = menstrualHistoryDetails.getProblemName();
 
@@ -2538,7 +2538,7 @@ public class CommonNurseServiceImpl implements CommonNurseService {
 		Long prescriptionID = saveBenPrescription(prescriptionDetail);
 		return prescriptionID;
 	}
-
+	// save prescription of covid19
 	public Long savePrescriptionDetailsCovid19(Long benRegID, Long benVisitID, Integer psmID, String createdBy,
 			String externalInvestigation, Long benVisitCode, Integer vanID, Integer parkingPlaceID,
 			String doctorDiagnosis) {
@@ -3627,6 +3627,7 @@ public class CommonNurseServiceImpl implements CommonNurseService {
 	public String getBenSymptomaticData(Long benRegID) throws Exception {
 		Map<String, Object> responseMap = new HashMap<>();
 		ArrayList<Map<String, Object>> ansList = new ArrayList<>();
+		// get date before 3 month
 		java.util.Date referenceDate = new java.util.Date();
 		Calendar c = Calendar.getInstance();
 		c.setTime(referenceDate);
