@@ -69,8 +69,11 @@ public class TeleConsultationServiceImpl implements TeleConsultationService {
 	private TCRequestModelRepo tCRequestModelRepo;
 	@Autowired
 	private BeneficiaryFlowStatusRepo beneficiaryFlowStatusRepo;
-	@Autowired
 	private CommonDoctorServiceImpl commonDoctorServiceImpl;
+	@Autowired
+	public void setCommonDoctorServiceImpl(CommonDoctorServiceImpl commonDoctorServiceImpl) {
+		this.commonDoctorServiceImpl = commonDoctorServiceImpl;
+	}
 
 	public int createTCRequest(TCRequestModel tCRequestModel) {
 		TCRequestModel tCRequestModelRS = tCRequestModelRepo.save(tCRequestModel);
